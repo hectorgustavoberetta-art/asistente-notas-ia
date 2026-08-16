@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Generador local de borradores de notas administrativas formales.">
+  <title>Asistente de Notas Administrativas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="hero">
+      <p class="eyebrow">Herramienta de redacción</p>
+      <h1>Asistente de Notas Administrativas</h1>
+      <p class="intro">Completá los datos básicos y generá un borrador formal que luego podrás revisar, ajustar y copiar.</p>
+      <p class="privacy-note">La información se procesa únicamente en tu navegador y no se envía a servicios externos.</p>
+    </header>
+
+    <section class="card" aria-labelledby="form-title">
+      <div class="section-heading">
+        <div>
+          <span class="step">Paso 1</span>
+          <h2 id="form-title">Datos de la nota</h2>
+        </div>
+        <p>Los campos marcados con * son obligatorios.</p>
+      </div>
+
+      <form id="note-form">
+        <div class="form-grid">
+          <div class="field field-full">
+            <label for="subject">Asunto <span aria-hidden="true">*</span></label>
+            <input id="subject" name="subject" type="text" required maxlength="160" placeholder="Ej.: Solicitud de autorización para jornada de capacitación">
+          </div>
+
+          <div class="field field-full">
+            <label for="recipient">Destinatario <span aria-hidden="true">*</span></label>
+            <input id="recipient" name="recipient" type="text" required maxlength="160" placeholder="Ej.: Sr. Director de Administración">
+          </div>
+
+          <div class="field field-full">
+            <label for="background">Antecedente o motivo <span aria-hidden="true">*</span></label>
+            <textarea id="background" name="background" required rows="4" maxlength="1000" placeholder="Explicá brevemente el contexto o la razón de la nota."></textarea>
+          </div>
+
+          <div class="field field-full">
+            <label for="activity">Actividad o tema principal <span aria-hidden="true">*</span></label>
+            <textarea id="activity" name="activity" required rows="4" maxlength="1000" placeholder="Describí la actividad, solicitud o tema central."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="date">Fecha <span aria-hidden="true">*</span></label>
+            <input id="date" name="date" type="date" required>
+          </div>
+
+          <div class="field">
+            <label for="place">Lugar <span aria-hidden="true">*</span></label>
+            <input id="place" name="place" type="text" required maxlength="120" placeholder="Ej.: Santiago">
+          </div>
+
+          <div class="field field-full">
+            <label for="additional">Información adicional <span class="optional">(opcional)</span></label>
+            <textarea id="additional" name="additional" rows="3" maxlength="1000" placeholder="Agregá plazos, responsables, documentación adjunta u otros datos relevantes."></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="button button-primary" type="submit">Generar borrador</button>
+          <button class="button button-secondary" id="clear-button" type="button">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card result-card" id="result-section" aria-labelledby="result-title" hidden>
+      <div class="section-heading result-heading">
+        <div>
+          <span class="step">Paso 2</span>
+          <h2 id="result-title">Borrador generado</h2>
+        </div>
+        <button class="button button-copy" id="copy-button" type="button">Copiar texto</button>
+      </div>
+
+      <div class="result" id="result" tabindex="0" aria-live="polite"></div>
+      <p class="result-hint">Revisá el contenido y ajustalo según los procedimientos de tu organización antes de utilizarlo.</p>
+      <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
