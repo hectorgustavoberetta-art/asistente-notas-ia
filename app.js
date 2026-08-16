@@ -4,7 +4,6 @@ const result = document.querySelector("#result");
 const copyButton = document.querySelector("#copy-button");
 const clearButton = document.querySelector("#clear-button");
 const copyStatus = document.querySelector("#copy-status");
-const dateInput = document.querySelector("#date");
 
 function formatDate(value) {
   if (!value) return "";
@@ -19,8 +18,16 @@ function formatDate(value) {
   }).format(date);
 }
 
-function cleanText(value) {
+function cleanText(value = "") {
   return value.trim().replace(/\s+/g, " ");
+}
+
+function lowerFirst(value) {
+  return value.charAt(0).toLocaleLowerCase("es") + value.slice(1);
+}
+
+function upperFirst(value) {
+  return value.charAt(0).toLocaleUpperCase("es") + value.slice(1);
 }
 
 function endSentence(value) {
@@ -28,34 +35,121 @@ function endSentence(value) {
   return /[.!?]$/.test(text) ? text : `${text}.`;
 }
 
+function replaceOpening(text, replacements) {
+  const match = text.match(/^(\p{L}+)/u);
+
+  if (!match) {
+    return text;
+  }
+
+  const replacement = replacements[match[1].toLocaleLowerCase("es")];
+
+  if (!replacement) {
+    return text;
+  }
+
+  return replacement + text.slice(match[1].length);
+}
+
+function composeBackground(value) {
+  const text = cleanText(value);
+  const lower = text.toLocaleLowerCase("es");
+
+  if (lower.startsWith("necesidad de ")) {
+    return endSentence(`Se ha identificado la ${lowerFirst(text)}`);
+  }
+
+  if (lower.startsWith("solicitud de ")) {
+    return endSentence(`Se ha recibido una ${lowerFirst(text)}`);
+  }
+
+  if (lower.startsWith("cumplimiento de ")) {
+    return endSentence(`En ${lowerFirst(text)}`);
+  }
+
+  return endSentence(upperFirst(text));
+}
+
+function composeMainAction(value) {
+  const text = cleanText(value);
+  const replacements = {
+    solicitar: "se solicita",
+    informar: "se informa",
+    comunicar: "se comunica",
+    remitir: "se remite",
+    adjuntar: "se adjunta",
+    presentar: "se presenta",
+    autorizar: "se solicita autorizar",
+    gestionar: "se solicita gestionar",
+    coordinar: "se propone coordinar",
+    organizar: "se propone organizar",
+    realizar: "se propone realizar",
+    convocar: "se propone convocar",
+    participar: "se propone participar"
+  };
+
+  const transformed = replaceOpening(text, replacements);
+  const action = transformed === text ? lowerFirst(text) : transformed;
+
+  return endSentence(`En atención a lo expuesto, ${action}`);
+}
+
+function composeAdditional(value) {
+  const text = cleanText(value);
+
+  if (!text) {
+    return "";
+  }
+
+  const lower = text.toLocaleLowerCase("es");
+  const connectors = [
+    "asimismo",
+    "además",
+    "a tal efecto",
+    "para ello",
+    "se adjunta",
+    "se deja constancia",
+    "la actividad",
+    "el plazo",
+    "la documentación"
+  ];
+
+  if (connectors.some((connector) => lower.startsWith(connector))) {
+    return endSentence(upperFirst(text));
+  }
+
+  return endSentence(`Asimismo, ${lowerFirst(text)}`);
+}
+
 function buildDraft(data) {
   const placeAndDate = `${cleanText(data.place)}, ${formatDate(data.date)}`;
   const recipient = cleanText(data.recipient);
   const subject = cleanText(data.subject);
-  const background = endSentence(data.background);
-  const activity = endSentence(data.activity);
-  const additional = cleanText(data.additional);
+  const background = composeBackground(data.background);
+  const mainAction = composeMainAction(data.activity);
+  const additional = composeAdditional(data.additional);
 
   const paragraphs = [
     placeAndDate,
+    "",
     recipient,
     "",
     `Asunto: ${subject}`,
     "",
     "De mi consideración:",
     "",
-    `Me dirijo a usted en relación con el siguiente antecedente o motivo: ${background}`,
+    `Por medio de la presente, me dirijo a usted a efectos de exponer lo siguiente. ${background}`,
     "",
-    `En este marco, se informa y pone a consideración lo siguiente: ${activity}`
+    mainAction
   ];
 
   if (additional) {
-    paragraphs.push("", `Asimismo, se deja constancia de la siguiente información adicional: ${endSentence(additional)}`);
+    paragraphs.push("", additional);
   }
 
   paragraphs.push(
     "",
-    "Sin otro particular, y agradeciendo desde ya su atención, saludo a usted atentamente.",
+    "Sin otro particular, saludo a usted atentamente.",
     "",
     "",
     "Firma: ______________________________",
